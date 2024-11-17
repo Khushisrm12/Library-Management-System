@@ -1,0 +1,397 @@
+import mysql.connector
+import sys
+
+def clrscreen():
+    print('\n' * 5)
+
+# --------------------------------- BOOK ----------------------------------------------
+def book_details():
+    try:
+        db = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor = db.cursor()
+        query = ("SELECT * FROM Book")
+        Cursor.execute(query)
+
+        print("========================================================")
+        print("BookCode Book Name Author \tPrice \tPublisher \tQuantity \tPurchased On")
+        print("========================================================")
+        for (Bno, Bname, Author, publ, price, qty, d_o_purchase) in Cursor:
+            print(Bno, "\t", Bname, "\t", Author, "\t", price, "\t", publ, "\t\t", qty, "\t\t", d_o_purchase)
+        print("========================================================")
+        p = input("Press any key to continue........")
+        Cursor.close()
+        db.close()
+        print("You have done it!!!!!!")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+# -------------------------------------------------------------------------------------
+def insertData():
+    try:
+        db = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor = db.cursor()
+        bno = input("Enter Book Code : ")
+        bname = input("Enter Book Name : ")
+        Auth = input("Enter Book Author's Name : ")
+        price = int(input("Enter Book Price : "))
+        publ = input("Enter Publisher of Book : ")
+        qty = int(input("Enter Quantity purchased : "))
+
+        print("Enter Date of Purchase (Date/Month and Year separately): ")
+        DD = int(input("Enter Date : "))
+        MM = int(input("Enter Month : "))
+        YY = int(input("Enter Year : "))
+
+        Qry = ("INSERT INTO Book VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        data = (bno, bname, Auth, publ, price, qty, date(YY, MM, DD))
+        Cursor.execute(Qry, data)
+        db.commit()
+        Cursor.close()
+        db.close()
+        print("Record Inserted..............")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+# -------------------------------------------------------------------------------------
+# Repeat the process for all other functions by maintaining proper indentation.
+
+# MenuBook, MenuMember, and MainMenu Functions
+
+def MenuBook():
+    while True:
+        clrscreen()
+        print("\t\t\t Book Record Management\n")
+        print("========================================================")
+        print("1. Add Book ")
+        print("2. Display Book")
+        print("3. Search Book")
+        print("4. Delete Book")
+        print("5. Update Book ")
+        print("6. Return to Main Menu ")
+        print("========================================================")
+        choice = int(input("Enter Choice between 1 to 6-------> : "))
+        if choice == 1:
+            insertData()
+        elif choice == 2:
+            book_details()
+        elif choice == 3:
+            SearchBookRec()
+        elif choice == 4:
+            deleteBook()
+        elif choice == 5:
+            UpdateBook()
+        elif choice == 6:
+            MainMenu()
+        else:
+            print("Wrong Choice......Enter Your Choice again")
+            x = input("Enter any key to continue")
+def mem_details():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+        query = ("SELECT * FROM Member")
+        Cursor1.execute(query)
+        
+        print("========================================================")
+        print("MemberCode MemberName Mob_No. DateofMembership Address BookIssued Status")
+        print("========================================================")
+        
+        for (Mno, Mname, MOB, DOP, ADR, issued, stat) in Cursor1:
+            print(Mno, "\t\t", Mname, "\t", MOB, "\t", DOP, "\t", ADR, "\t", issued, "\t\t", stat)
+        
+        print("========================================================")
+        p = input("Press any key to continue......")
+        Cursor1.close()
+        db1.close()
+        print("You have done it!!!!!!")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def insertMember():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+        mno = input("Enter Member Code : ")
+        mname = input("Enter Member Name : ")
+        mob = input("Enter Member Mobile No. : ")
+        print("Enter Date of Membership (Date/Month and Year separately): ")
+        DD = int(input("Enter Date : "))
+        MM = int(input("Enter Month : "))
+        YY = int(input("Enter Year : "))
+        addr = input("Enter Member Address : ")
+        issue = "null"
+        stat = 'N'
+
+        Qry = ("INSERT INTO Member VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        data = (mno, mname, mob, addr, date(YY, MM, DD), issue, stat)
+        Cursor1.execute(Qry, data)
+        db1.commit()
+        Cursor1.close()
+        db1.close()
+        print("Record Inserted..............")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def UpdateMember():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+        mem = input("Enter Member name to be Updated : ")
+        query = ("SELECT * FROM Member where mem_name = %s ")
+        rec_srch = (mem,)
+
+        choice = input("Do you want to change the mobile number of the member? (y/n): ")
+        if choice.lower() == 'y':
+            mobile = input("Enter new mobile number : ")
+            Qry = ("UPDATE Member SET mob=%s WHERE mem_name=%s")
+            data = (mobile, mem,)
+            Cursor1.execute(Qry, data)
+            db1.commit()
+
+        choice = input("Do you want to change the address of the member? (y/n): ")
+        if choice.lower() == 'y':
+            ad = input("Enter new Address : ")
+            Qry = ("UPDATE Member SET address=%s WHERE mem_name=%s")
+            data = (ad, mem,)
+            Cursor1.execute(Qry, data)
+            db1.commit()
+
+        Cursor1.close()
+        db1.close()
+        print("Record(s) Updated Successfully.............")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def deleteMember():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+        mno = input("Enter Member Code to be deleted from the Library : ")
+        Qry = ("DELETE FROM Member WHERE Mem_no = %s")
+        del_rec = (mno,)
+        Cursor1.execute(Qry, del_rec)
+        db1.commit()
+        Cursor1.close()
+        db1.close()
+        print(Cursor1.rowcount, "Record(s) Deleted Successfully.........")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def SearchMember():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+        mnm = input("Enter Member Name to be Searched from the Library : ")
+        query = ("SELECT * FROM Member where Mem_Name = %s ")
+        rec_srch = (mnm,)
+        Cursor1.execute(query, rec_srch)
+        
+        for (Mno, Mname, MOB, ADR, DOP, issued, stat) in Cursor1:
+            print("========================================================")
+            print("Member Code : ", Mno)
+            print("Member Name : ", Mname)
+            print("Mobile No. of Member : ", MOB)
+            print("Date of Membership : ", DOP)
+            print("Address : ", ADR)
+            print("Book Issued : ", issued)
+            print("Status : ", stat)
+            print("========================================================")
+
+        Cursor1.close()
+        db1.close()
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def issueBook():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+
+        Bno = input("Enter Book Code to be Issued: ")
+        Mno = input("Enter Member Code to whom the Book is to be Issued: ")
+        print("Enter Date of Issue (Date/Month and Year separately): ")
+        DD = int(input("Enter Date: "))
+        MM = int(input("Enter Month: "))
+        YY = int(input("Enter Year: "))
+        
+        # Check book availability
+        query = ("SELECT * FROM Book WHERE Bno = %s AND Status = 'N'")
+        book_check = (Bno,)
+        Cursor1.execute(query, book_check)
+        book = Cursor1.fetchone()
+
+        if not book:
+            print("Book is not available for issue.")
+            return
+
+        # Check if member already has a book issued
+        query = ("SELECT * FROM Member WHERE Mem_no = %s AND Status = 'Y'")
+        member_check = (Mno,)
+        Cursor1.execute(query, member_check)
+        member = Cursor1.fetchone()
+
+        if member:
+            print("Member already has a book issued. Cannot issue another.")
+            return
+
+        # Issue the book
+        query = ("INSERT INTO Issue VALUES (%s, %s, %s)")
+        data = (Bno, Mno, date(YY, MM, DD))
+        Cursor1.execute(query, data)
+
+        # Update book status
+        query = ("UPDATE Book SET Status = 'Y' WHERE Bno = %s")
+        Cursor1.execute(query, book_check)
+
+        # Update member status
+        query = ("UPDATE Member SET Status = 'Y', BookIssued = %s WHERE Mem_no = %s")
+        data = (Bno, Mno)
+        Cursor1.execute(query, data)
+
+        db1.commit()
+        Cursor1.close()
+        db1.close()
+        print("Book Issued Successfully!")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+def returnBook():
+    try:
+        db1 = mysql.connector.connect(host="localhost", user="root", password="tiger", database='library')
+        Cursor1 = db1.cursor()
+
+        Bno = input("Enter Book Code to be Returned: ")
+        Mno = input("Enter Member Code returning the Book: ")
+        print("Enter Date of Return (Date/Month and Year separately): ")
+        DD = int(input("Enter Date: "))
+        MM = int(input("Enter Month: "))
+        YY = int(input("Enter Year: "))
+
+        # Check if the book is issued
+        query = ("SELECT * FROM Issue WHERE Bno = %s AND Mem_no = %s")
+        issue_check = (Bno, Mno)
+        Cursor1.execute(query, issue_check)
+        issue = Cursor1.fetchone()
+
+        if not issue:
+            print("No such issued book found!")
+            return
+
+        # Return the book
+        query = ("DELETE FROM Issue WHERE Bno = %s AND Mem_no = %s")
+        Cursor1.execute(query, issue_check)
+
+        # Update book status
+        query = ("UPDATE Book SET Status = 'N' WHERE Bno = %s")
+        book_update = (Bno,)
+        Cursor1.execute(query, book_update)
+
+        # Update member status
+        query = ("UPDATE Member SET Status = 'N', BookIssued = NULL WHERE Mem_no = %s")
+        member_update = (Mno,)
+        Cursor1.execute(query, member_update)
+
+        db1.commit()
+        Cursor1.close()
+        db1.close()
+        print("Book Returned Successfully!")
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+
+
+def MenuMember():
+    clrscreen()
+    print("\t\t\t Member Record Management\n")
+    print("========================================================")
+    print("1. Add Member")
+    print("2. Display Member")
+    print("3. Search Member")
+    print("4. Delete Member")
+    print("5. Update Member ")
+    print("6. Issue Book ")
+    print("7. Return Book ")
+    print("8. Return to Main Menu ")
+    print("========================================================")
+    choice = int(input("Enter Choice between 1 to 8-------> : "))
+    if choice == 1:
+        insertMember()
+    elif choice == 2:
+        mem_details()
+    elif choice == 3:
+        SearchMember()
+    elif choice == 4:
+        deleteMember()
+    elif choice == 5:
+        UpdateMember()
+    elif choice == 6:
+        issueBook()
+    elif choice == 7:
+        returnBook()
+    elif choice == 8:
+        MainMenu()
+    else:
+        print("Wrong Choice......Enter Your Choice again")
+        x = input("Enter any key to continue")
+
+def MainMenu():
+    print("\t\t\t Library Management System\n")
+    print("========================================================")
+    print("1. Book ")
+    print("2. Member ")
+    print("3. Exit ")
+    print("========================================================")
+    choice = int(input("Enter Choice between 1 to 3-------> : "))
+    if choice == 1:
+        MenuBook()
+    elif choice == 2:
+        MenuMember()
+    else:
+        sys.exit()
+
+# Run the Main Menu
+MainMenu()
